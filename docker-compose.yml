@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  flask_app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    # environment:
+    #   - FLASK_APP=app.py
+    #   - FLASK_ENV=development
+
+  redis:
+    image: redis:latest
+
+  celery_worker:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - C_FORCE_ROOT=true
+      - CELERY_BROKER=redis://redis:6379/0
+    command: python -m celery -A tasks worker --loglevel=info
