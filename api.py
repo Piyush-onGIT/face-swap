@@ -7,7 +7,7 @@ from tasks import process_images
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -43,6 +43,24 @@ def process_images_route():
   # Queue the task to process the images
   result = process_images.delay(source_image_path, target_image_path, output_image_path)
   return jsonify({"task_id": result.id}), 202
+
+@app.route('/task_time_left/<task_id>', methods=['GET'])
+def get_task_time_left(task_id):
+  result = process_images.AsyncResult(task_id)
+
+  if result.state == 'PENDING':
+    return jsonify({"message": "Task is still pending"}), 200
+  elif result.state == 'SUCCESS':
+    return jsonify({"message": "Task has already completed", "result": result.result}), 200
+
+  eta = result.eta
+  if eta:
+    time_left = eta - datetime.utcnow()
+    time_left_seconds = max(time_left.total_seconds(), 0)
+  else:
+    time_left_seconds = None
+
+  return jsonify({"task_id": task_id, "time_left_seconds": time_left_seconds}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

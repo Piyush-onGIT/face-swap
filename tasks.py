@@ -3,7 +3,7 @@ import os
 from roop import core
 
 # Create Celery instance
-celery = Celery(__name__, broker='redis://localhost:6379/0')
+celery = Celery(__name__, broker='redis://redis:6379/0', backend='redis://redis:6379/0')
 
 # Define Celery task
 @celery.task
