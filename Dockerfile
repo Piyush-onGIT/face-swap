@@ -2,9 +2,9 @@ FROM python:3.10
 
 WORKDIR /app
 
-Run apt-get update
-Run apt-get install python3-tk -y
-Run apt-get install ffmpeg libsm6 libxext6 -y
+RUN apt-get update
+RUN apt-get install python3-tk -y
+RUN apt-get install ffmpeg libsm6 libxext6 -y
 
 # Install Python dependencies
 COPY requirements.txt /app/
