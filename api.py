@@ -7,8 +7,12 @@ import boto3
 from pymongo import MongoClient
 from datetime import timedelta
 from flask_cors import CORS
+from flask_sock import Sock
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*')
+
 allowed_origins = [
     'http://localhost:3000',
     'https://roop.gokapturehub.com'
@@ -27,6 +31,11 @@ client = MongoClient(host, port)
 db = client['ai-photobooth']
 collection = db['face-swaps']
 
+@socketio.on('message_from_server')
+def handle_message(message):
+  print('Message received from client:', message)
+  emit('message_from_server', 'Message received by server: ' + message)
+
 # Check if the uploaded file has a valid extension
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -38,6 +47,7 @@ def generate_unique_filename():
 # Endpoint to receive and process images
 @app.route('/process_image', methods=['POST'])
 def process_images_route():
+  socketio.emit('message_from_server', 'Processing begins')
   if 'source_image' not in request.files or 'target_image' not in request.files:
     return jsonify({"error": "Source or target image not provided"}), 400
 
@@ -93,6 +103,11 @@ def getImages():
   images = list(collection.find())
   return jsonify(images)
 
+def send_message(message):
+  print('hi')
+  socketio.emit('message_from_server', message)
+
 
 if __name__ == '__main__':
-  app.run(debug=True)
+  # app.run(debug=True)
+  socketio.run(app, debug=True)

@@ -28,3 +28,6 @@ python-dotenv
 pytz
 pymongo
 flask-cors
+gevent-websocket
+aiohttp
+websocket-client
