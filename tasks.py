@@ -19,7 +19,6 @@ def process_images(source_image_path, target_image_path, output_image_path, outp
   url = upload_image_to_s3(output_image_path, os.environ.get('AWS_BUCKET_NAME'), output_filename)
   return url
 
-
 def upload_image_to_s3(file_path, bucket_name, object_name):
   try:
     s3.upload_file(file_path, bucket_name, object_name, ExtraArgs={'ACL': 'public-read'})
