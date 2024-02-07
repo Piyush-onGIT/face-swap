@@ -9,9 +9,11 @@ from datetime import timedelta
 from flask_cors import CORS
 from flask_sock import Sock
 from flask_socketio import SocketIO, emit
+import redis
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 allowed_origins = [
     'http://localhost:3000',
@@ -47,7 +49,6 @@ def generate_unique_filename():
 # Endpoint to receive and process images
 @app.route('/process_image', methods=['POST'])
 def process_images_route():
-  socketio.emit('message_from_server', 'Processing begins')
   if 'source_image' not in request.files or 'target_image' not in request.files:
     return jsonify({"error": "Source or target image not provided"}), 400
 
@@ -68,6 +69,8 @@ def process_images_route():
 
   # Queue the task to process the images
   result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
+  return_message = f'{result.id}:loading'
+  socketio.emit('message_from_server', return_message.encode('utf-8'))
   return jsonify({"task_id": result.id}), 202
 
 @app.route('/check/<task_id>', methods=['GET'])
@@ -80,7 +83,6 @@ def get_task_time_left(task_id):
     timestamp = result.date_done
     time_delta = timedelta(hours=5, minutes=30)
     timestamp = timestamp + time_delta
-    print(timestamp)
     return jsonify({"message": "Task has already completed", "result": result.result, "finished_at": timestamp}), 200
 
   eta = result.eta
@@ -104,10 +106,28 @@ def getImages():
   return jsonify(images)
 
 def send_message(message):
-  print('hi')
   socketio.emit('message_from_server', message)
 
 
+# def listen_for_task_completion():
+#   pubsub = redis_client.pubsub()
+#   pubsub.subscribe('task_completed')
+#   for message in pubsub.listen():
+#       if message['type'] == 'message':
+#           send_message(message['data'])
+
+def listen_for_task_completion():
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe('task_completed')
+    for message in pubsub.listen():
+        if message['type'] == 'message':
+            print(message['data'])
+            send_message(message['data'])
+
+
 if __name__ == '__main__':
+  import threading
+  task_listener_thread = threading.Thread(target=listen_for_task_completion)
+  task_listener_thread.start()
   # app.run(debug=True)
   socketio.run(app, debug=True)
