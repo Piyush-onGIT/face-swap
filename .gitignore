@@ -4,3 +4,5 @@ temp
 __pycache__
 .venv/
 gfpgan/
+aws-creds/
+.env

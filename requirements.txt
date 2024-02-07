@@ -23,3 +23,5 @@ celery
 gunicorn
 Flask
 redis
+boto3
+python-dotenv

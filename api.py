@@ -3,6 +3,7 @@ import uuid
 from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
 from tasks import process_images
+import boto3
 
 app = Flask(__name__)
 
@@ -35,13 +36,13 @@ def process_images_route():
 
   source_image_path = os.path.join(app.config['UPLOAD_FOLDER'], source_filename)
   target_image_path = os.path.join(app.config['UPLOAD_FOLDER'], target_filename)
-  output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+  output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename,)
 
   source_image.save(source_image_path)
   target_image.save(target_image_path)
 
   # Queue the task to process the images
-  result = process_images.delay(source_image_path, target_image_path, output_image_path)
+  result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
   return jsonify({"task_id": result.id}), 202
 
 @app.route('/check/<task_id>', methods=['GET'])
@@ -61,6 +62,15 @@ def get_task_time_left(task_id):
     time_left_seconds = None
 
   return jsonify({"task_id": task_id, "time_left_seconds": time_left_seconds}), 200
+
+
+# @app.route('/s3', methods=['GET'])
+# def s3fun():
+#   s3 = boto3.client('s3', aws_access_key_id='', aws_secret_access_key='')
+#   s3.upload_file('./uploads/abcd.png', 'tc-aws-nitrr', 'abcd.png')
+#   access_url = f"https://tc-aws-nitrr.s3.amazonaws.com/abcd.png"
+#   print(access_url)
+#   return jsonify(['objects'])
 
 if __name__ == '__main__':
     app.run(debug=True)
