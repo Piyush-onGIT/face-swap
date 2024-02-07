@@ -52,7 +52,11 @@ def get_task_time_left(task_id):
   if result.state == 'PENDING':
     return jsonify({"message": "Task is still pending"}), 200
   elif result.state == 'SUCCESS':
-    return jsonify({"message": "Task has already completed", "result": result.result, "finished_at": result.date_done}), 200
+    timestamp = result.date_done
+    time_delta = timedelta(hours=5, minutes=30)
+    timestamp = timestamp + time_delta
+    print(timestamp)
+    return jsonify({"message": "Task has already completed", "result": result.result, "finished_at": timestamp}), 200
 
   eta = result.eta
   if eta:
@@ -64,13 +68,9 @@ def get_task_time_left(task_id):
   return jsonify({"task_id": task_id, "time_left_seconds": time_left_seconds}), 200
 
 
-# @app.route('/s3', methods=['GET'])
-# def s3fun():
-#   s3 = boto3.client('s3', aws_access_key_id='', aws_secret_access_key='')
-#   s3.upload_file('./uploads/abcd.png', 'tc-aws-nitrr', 'abcd.png')
-#   access_url = f"https://tc-aws-nitrr.s3.amazonaws.com/abcd.png"
-#   print(access_url)
-#   return jsonify(['objects'])
+@app.route('/', methods=['GET'])
+def test():
+  return 'OK'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run(debug=True)
