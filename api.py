@@ -20,7 +20,7 @@ def generate_unique_filename():
     return str(uuid.uuid4())
 
 # Endpoint to receive and process images
-@app.route('/process_images', methods=['POST'])
+@app.route('/process_image', methods=['POST'])
 def process_images_route():
   if 'source_image' not in request.files or 'target_image' not in request.files:
     return jsonify({"error": "Source or target image not provided"}), 400
@@ -44,7 +44,7 @@ def process_images_route():
   result = process_images.delay(source_image_path, target_image_path, output_image_path)
   return jsonify({"task_id": result.id}), 202
 
-@app.route('/task_time_left/<task_id>', methods=['GET'])
+@app.route('/check/<task_id>', methods=['GET'])
 def get_task_time_left(task_id):
   result = process_images.AsyncResult(task_id)
 
