@@ -52,7 +52,7 @@ def get_task_time_left(task_id):
   if result.state == 'PENDING':
     return jsonify({"message": "Task is still pending"}), 200
   elif result.state == 'SUCCESS':
-    return jsonify({"message": "Task has already completed", "result": result.result}), 200
+    return jsonify({"message": "Task has already completed", "result": result.result, "finished_at": result.date_done}), 200
 
   eta = result.eta
   if eta:
