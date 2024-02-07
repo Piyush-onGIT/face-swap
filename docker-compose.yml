@@ -22,3 +22,5 @@ services:
       - C_FORCE_ROOT=true
       - CELERY_BROKER=redis://redis:6379/0
     command: python -m celery -A tasks worker --loglevel=info
+    depends_on:
+      - redis
