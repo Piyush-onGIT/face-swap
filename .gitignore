@@ -6,3 +6,4 @@ __pycache__
 gfpgan/
 aws-creds/
 .env
+db/

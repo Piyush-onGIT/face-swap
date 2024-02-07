@@ -4,13 +4,28 @@ from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
 from tasks import process_images
 import boto3
+from pymongo import MongoClient
+from datetime import timedelta
+from flask_cors import CORS
 
 app = Flask(__name__)
+allowed_origins = [
+    'http://localhost:3000',
+    'https://roop.gokapturehub.com'
+]
+CORS(app, origins=allowed_origins)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+host = 'localhost'
+port = 27017
+
+client = MongoClient(host, port)
+db = client['ai-photobooth']
+collection = db['face-swaps']
 
 # Check if the uploaded file has a valid extension
 def allowed_file(filename):
@@ -36,7 +51,7 @@ def process_images_route():
 
   source_image_path = os.path.join(app.config['UPLOAD_FOLDER'], source_filename)
   target_image_path = os.path.join(app.config['UPLOAD_FOLDER'], target_filename)
-  output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename,)
+  output_image_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
 
   source_image.save(source_image_path)
   target_image.save(target_image_path)
@@ -71,6 +86,13 @@ def get_task_time_left(task_id):
 @app.route('/', methods=['GET'])
 def test():
   return 'OK'
+
+
+@app.route('/getImages', methods=['GET'])
+def getImages():
+  images = list(collection.find())
+  return jsonify(images)
+
 
 if __name__ == '__main__':
   app.run(debug=True)

@@ -22,3 +22,13 @@ services:
       - C_FORCE_ROOT=true
       - CELERY_BROKER=redis://redis:6379/0
     command: python -m celery -A tasks worker --loglevel=info
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db:/data/db
+    

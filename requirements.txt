@@ -26,3 +26,5 @@ redis
 boto3
 python-dotenv
 pytz
+pymongo
+flask-cors
