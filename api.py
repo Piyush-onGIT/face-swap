@@ -13,10 +13,13 @@ import requests
 import base64
 import aiohttp
 import asyncio
+from tasks import upload_image_to_s3
+from roop import core
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins='*')
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+# socketio = SocketIO(app, cors_allowed_origins='*')
+redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 
 allowed_origins = [
     'http://localhost:3000',
@@ -30,17 +33,17 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-host = 'localhost'
+host = 'mongodb'
 port = 27017
 
 client = MongoClient(host, port)
 db = client['ai-photobooth']
 collection = db['face-swaps']
 
-@socketio.on('message_from_server')
-def handle_message(message):
-  print('Message received from client:', message)
-  emit('message_from_server', 'Message received by server: ' + message)
+# @socketio.on('message_from_server')
+# def handle_message(message):
+#   print('Message received from client:', message)
+#   emit('message_from_server', 'Message received by server: ' + message)
 
 # Check if the uploaded file has a valid extension
 def allowed_file(filename):
@@ -49,6 +52,11 @@ def allowed_file(filename):
 # Generate a unique filename
 def generate_unique_filename():
     return str(uuid.uuid4())
+
+def process_images(source_image_path, target_image_path, output_image_path, output_filename):
+  core.run(source_image_path, target_image_path, output_image_path)
+  url = upload_image_to_s3(output_image_path, os.environ.get('AWS_BUCKET_NAME'), output_filename, output_filename)
+  return url
 
 # Endpoint to receive and process images
 @app.route('/process_image', methods=['POST'])
@@ -71,11 +79,13 @@ def process_images_route():
   source_image.save(source_image_path)
   target_image.save(target_image_path)
 
+  url = process_images(source_image_path, target_image_path, output_image_path, output_filename)
+
   # Queue the task to process the images
-  result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
-  return_message = f'{result.id}:loading'
-  # socketio.emit('message_from_server', return_message.encode('utf-8'))
-  return jsonify({"task_id": result.id}), 202
+  # result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
+
+  # return jsonify({"task_id": result.id}), 202
+  return jsonify({"url": url}), 202
 
 @app.route('/check/<task_id>', methods=['GET'])
 def get_task_time_left(task_id):
@@ -159,8 +169,8 @@ def listen_for_task_completion():
 
 
 if __name__ == '__main__':
-  import threading
-  task_listener_thread = threading.Thread(target=listen_for_task_completion)
-  task_listener_thread.start()
-  # app.run(debug=True)
-  socketio.run(app, debug=True)
+  # import threading
+  # task_listener_thread = threading.Thread(target=listen_for_task_completion)
+  # task_listener_thread.start()
+  # socketio.run(app, debug=True)
+  app.run(debug=True)

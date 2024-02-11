@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import redis
 from celery.signals import task_success
 
-host = 'localhost'
+host = 'mongodb'
 port = 27017
 
 client = MongoClient(host, port)
