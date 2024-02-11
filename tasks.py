@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import redis
 from celery.signals import task_success
 
-host = 'mongodb'
+host = 'localhost'
 port = 27017
 
 client = MongoClient(host, port)
@@ -47,4 +47,4 @@ def upload_image_to_s3(file_path, bucket_name, object_name, task_id):
     print(f"Upload Failed: {e}")
 
 def saveToMongo(url, collection, task_id):
-  collection.insert_one({"_id": task_id ,'image': url})
+  collection.insert_one({"_id": task_id ,'image': url}) 
