@@ -7,9 +7,12 @@ import boto3
 from pymongo import MongoClient
 from datetime import timedelta
 from flask_cors import CORS
-from flask_sock import Sock
 from flask_socketio import SocketIO, emit
 import redis
+import requests
+import base64
+import aiohttp
+import asyncio
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
@@ -17,6 +20,7 @@ redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 allowed_origins = [
     'http://localhost:3000',
+    'http://127.0.0.1:5500',
     'https://roop.gokapturehub.com'
 ]
 CORS(app, origins=allowed_origins)
@@ -70,7 +74,7 @@ def process_images_route():
   # Queue the task to process the images
   result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
   return_message = f'{result.id}:loading'
-  socketio.emit('message_from_server', return_message.encode('utf-8'))
+  # socketio.emit('message_from_server', return_message.encode('utf-8'))
   return jsonify({"task_id": result.id}), 202
 
 @app.route('/check/<task_id>', methods=['GET'])
@@ -95,6 +99,28 @@ def get_task_time_left(task_id):
   return jsonify({"task_id": task_id, "time_left_seconds": time_left_seconds}), 200
 
 
+@app.route('/send_whatsapp_message', methods=['POST'])
+def send_whatsapp_message():
+  data = request.json
+  s3Url = data.get('url', None)
+  phone = data.get('phone', None)
+  s3Base64 = url_to_base64(s3Url)
+
+
+  if (not s3Url) or (not phone) or (not s3Base64) or len(phone) != 10:
+    return jsonify({"message": "Invalid image"})
+
+  phone = "91" + phone
+  api_url = 'http://localhost:3000/api/sendImage'
+  data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": s3Base64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
+
+  loop = asyncio.new_event_loop()
+  asyncio.set_event_loop(loop)
+  result = loop.run_until_complete(call_third_party_api(api_url, data))
+
+  return jsonify({"message": "Done"})
+
+
 @app.route('/', methods=['GET'])
 def test():
   return 'OK'
@@ -105,23 +131,30 @@ def getImages():
   images = list(collection.find())
   return jsonify(images)
 
+def url_to_base64(image_url):
+  response = requests.get(image_url)
+  if response.status_code == 200:
+    image_base64 = base64.b64encode(response.content).decode('utf-8')
+    return image_base64
+  else:
+    return None
+
+async def call_third_party_api(url, data):
+  async with aiohttp.ClientSession() as session:
+    async with session.post(url, json=data) as response:
+      return await response.text()
+
 def send_message(message):
-  socketio.emit('message_from_server', message)
-
-
-# def listen_for_task_completion():
-#   pubsub = redis_client.pubsub()
-#   pubsub.subscribe('task_completed')
-#   for message in pubsub.listen():
-#       if message['type'] == 'message':
-#           send_message(message['data'])
+  message = message.decode('utf-8')
+  taskId = message.split(":")[0]
+  url = message[message.find(':') + 1:]
+  socketio.emit(taskId, url)
 
 def listen_for_task_completion():
     pubsub = redis_client.pubsub()
     pubsub.subscribe('task_completed')
     for message in pubsub.listen():
         if message['type'] == 'message':
-            print(message['data'])
             send_message(message['data'])
 
 

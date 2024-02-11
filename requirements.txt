@@ -31,3 +31,5 @@ flask-cors
 gevent-websocket
 aiohttp
 websocket-client
+flask_sock
+flask_socketio
