@@ -21,12 +21,7 @@ app = Flask(__name__)
 # socketio = SocketIO(app, cors_allowed_origins='*')
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 
-allowed_origins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:5500',
-    'https://roop.gokapturehub.com'
-]
-CORS(app, origins=allowed_origins)
+CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
@@ -55,7 +50,7 @@ def generate_unique_filename():
 
 def process_images(source_image_path, target_image_path, output_image_path, output_filename):
   core.run(source_image_path, target_image_path, output_image_path)
-  url = upload_image_to_s3(output_image_path, os.environ.get('AWS_BUCKET_NAME'), output_filename, output_filename)
+  url = upload_image_to_s3(output_image_path)
   return url
 
 # Endpoint to receive and process images

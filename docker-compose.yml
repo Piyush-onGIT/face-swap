@@ -7,22 +7,8 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-
-    # environment:
-    #   - FLASK_APP=app.py
-    #   - FLASK_ENV=development
-
-  redis:
-    image: redis:latest
-
-  celery_worker:
-    build: .
-    volumes:
-      - .:/app
-    environment:
-      - C_FORCE_ROOT=true
-      - CELERY_BROKER=redis://redis:6379/0
-    command: python -m celery -A tasks worker --loglevel=info
+    networks:
+      - mynetwork
 
   mongodb:
     image: mongo
@@ -32,10 +18,15 @@ services:
       - "27017:27017"
     volumes:
       - ./db:/data/db
+    networks:
+      - mynetwork
 
-  whatsapp_api:
-    image: public.ecr.aws/t1n3q9p8/gokapturehub-misc
-    container_name: whatsapp_api
-    restart: always
-    ports:
-      - "3000:3000"
+networks:
+  mynetwork:
+
+  # whatsapp_api:
+  #   image: public.ecr.aws/t1n3q9p8/gokapturehub-misc
+  #   container_name: whatsapp_api
+  #   restart: always
+  #   ports:
+  #     - "3000:3000"
