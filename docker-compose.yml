@@ -7,8 +7,25 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-    networks:
-      - mynetwork
+    command: gunicorn -b 0.0.0.0:5000 api:app
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      # - FLASK_APP=app.py
+    #   - FLASK_ENV=development
+
+  redis:
+    image: redis:latest
+
+  celery_worker:
+    build: .
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    environment:
+      - C_FORCE_ROOT=true
+      - CELERY_BROKER=redis://redis:6379/0
+    command: python -m celery -A tasks worker --loglevel=info
 
   mongodb:
     image: mongo
@@ -18,11 +35,16 @@ services:
       - "27017:27017"
     volumes:
       - ./db:/data/db
-    networks:
-      - mynetwork
 
-networks:
-  mynetwork:
+  redis_listener:
+    build: ./redis-listener
+    depends_on:
+      - redis
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./redis-listener:/app
+    command: npm start
 
   # whatsapp_api:
   #   image: public.ecr.aws/t1n3q9p8/gokapturehub-misc

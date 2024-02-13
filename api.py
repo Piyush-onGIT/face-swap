@@ -7,21 +7,21 @@ import boto3
 from pymongo import MongoClient
 from datetime import timedelta
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
 import redis
 import requests
 import base64
 import aiohttp
 import asyncio
-from tasks import upload_image_to_s3
-from roop import core
+import redis
 
 app = Flask(__name__)
 
-# socketio = SocketIO(app, cors_allowed_origins='*')
-redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
-
-CORS(app)
+allowed_origins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:5500',
+    'https://roop.gokapturehub.com'
+]
+CORS(app, origins=allowed_origins)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
@@ -35,25 +35,23 @@ client = MongoClient(host, port)
 db = client['ai-photobooth']
 collection = db['face-swaps']
 
-# @socketio.on('message_from_server')
-# def handle_message(message):
-#   print('Message received from client:', message)
-#   emit('message_from_server', 'Message received by server: ' + message)
 
 # Check if the uploaded file has a valid extension
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Generate a unique filename
+
+
 def generate_unique_filename():
     return str(uuid.uuid4())
 
-def process_images(source_image_path, target_image_path, output_image_path, output_filename):
-  core.run(source_image_path, target_image_path, output_image_path)
-  url = upload_image_to_s3(output_image_path)
-  return url
 
 # Endpoint to receive and process images
+
+
 @app.route('/process_image', methods=['POST'])
 def process_images_route():
   if 'source_image' not in request.files or 'target_image' not in request.files:
@@ -74,13 +72,10 @@ def process_images_route():
   source_image.save(source_image_path)
   target_image.save(target_image_path)
 
-  url = process_images(source_image_path, target_image_path, output_image_path, output_filename)
-
   # Queue the task to process the images
-  # result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
+  result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
+  return jsonify({"task_id": result.id}), 202
 
-  # return jsonify({"task_id": result.id}), 202
-  return jsonify({"url": url}), 202
 
 @app.route('/check/<task_id>', methods=['GET'])
 def get_task_time_left(task_id):
@@ -111,7 +106,6 @@ def send_whatsapp_message():
   phone = data.get('phone', None)
   s3Base64 = url_to_base64(s3Url)
 
-
   if (not s3Url) or (not phone) or (not s3Base64) or len(phone) != 10:
     return jsonify({"message": "Invalid image"})
 
@@ -136,6 +130,7 @@ def getImages():
   images = list(collection.find())
   return jsonify(images)
 
+
 def url_to_base64(image_url):
   response = requests.get(image_url)
   if response.status_code == 200:
@@ -144,28 +139,12 @@ def url_to_base64(image_url):
   else:
     return None
 
+
 async def call_third_party_api(url, data):
   async with aiohttp.ClientSession() as session:
     async with session.post(url, json=data) as response:
       return await response.text()
 
-def send_message(message):
-  message = message.decode('utf-8')
-  taskId = message.split(":")[0]
-  url = message[message.find(':') + 1:]
-  socketio.emit(taskId, url)
 
-def listen_for_task_completion():
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe('task_completed')
-    for message in pubsub.listen():
-        if message['type'] == 'message':
-            send_message(message['data'])
-
-
-if __name__ == '__main__':
-  # import threading
-  # task_listener_thread = threading.Thread(target=listen_for_task_completion)
-  # task_listener_thread.start()
-  # socketio.run(app, debug=True)
-  app.run(debug=True)
+if __name__ == "__main__":
+  app.run(app, debug=True)

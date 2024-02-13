@@ -1,0 +1,156 @@
+[2024-02-12 13:33:26 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2024-02-12 13:33:26 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2024-02-12 13:33:26 +0000] [1] [INFO] Using worker: geventwebsocket.gunicorn.workers.GeventWebSocketWorker
+[2024-02-12 13:33:26 +0000] [7] [INFO] Booting worker with pid: 7
+[2024-02-12 13:37:16 +0000] [1] [INFO] Handling signal: term
+[2024-02-12 13:38:49 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2024-02-12 13:38:49 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2024-02-12 13:38:49 +0000] [1] [INFO] Using worker: gthread
+[2024-02-12 13:38:49 +0000] [7] [INFO] Booting worker with pid: 7
+[2024-02-12 13:39:09 +0000] [7] [ERROR] Error handling request /socket.io/?EIO=4&transport=websocket&sid=sbAPsDqCXFYBVcplAAAA
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/workers/gthread.py", line 282, in handle
+    keepalive = self.handle_request(req, conn)
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/workers/gthread.py", line 334, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1488, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/flask_socketio/__init__.py", line 43, in __call__
+    return super(_SocketIOMiddleware, self).__call__(environ,
+  File "/usr/local/lib/python3.10/site-packages/engineio/middleware.py", line 63, in __call__
+    return self.engineio_app.handle_request(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/socketio/server.py", line 430, in handle_request
+    return self.eio.handle_request(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/engineio/server.py", line 274, in handle_request
+    packets = socket.handle_get_request(
+  File "/usr/local/lib/python3.10/site-packages/engineio/socket.py", line 90, in handle_get_request
+    return getattr(self, '_upgrade_' + transport)(environ,
+  File "/usr/local/lib/python3.10/site-packages/engineio/socket.py", line 146, in _upgrade_websocket
+    return ws(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/engineio/async_drivers/gevent.py", line 54, in __call__
+    raise RuntimeError('The gevent-websocket server is not '
+RuntimeError: The gevent-websocket server is not configured appropriately. See the Deployment section of the documentation for more information.
+[2024-02-12 13:39:19 +0000] [7] [ERROR] Error handling request /socket.io/?EIO=4&transport=websocket&sid=Pkoyl1kDxJ1_2NeKAAAC
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/workers/gthread.py", line 282, in handle
+    keepalive = self.handle_request(req, conn)
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/workers/gthread.py", line 334, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1488, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/flask_socketio/__init__.py", line 43, in __call__
+    return super(_SocketIOMiddleware, self).__call__(environ,
+  File "/usr/local/lib/python3.10/site-packages/engineio/middleware.py", line 63, in __call__
+    return self.engineio_app.handle_request(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/socketio/server.py", line 430, in handle_request
+    return self.eio.handle_request(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/engineio/server.py", line 274, in handle_request
+    packets = socket.handle_get_request(
+  File "/usr/local/lib/python3.10/site-packages/engineio/socket.py", line 90, in handle_get_request
+    return getattr(self, '_upgrade_' + transport)(environ,
+  File "/usr/local/lib/python3.10/site-packages/engineio/socket.py", line 146, in _upgrade_websocket
+    return ws(environ, start_response)
+  File "/usr/local/lib/python3.10/site-packages/engineio/async_drivers/gevent.py", line 54, in __call__
+    raise RuntimeError('The gevent-websocket server is not '
+RuntimeError: The gevent-websocket server is not configured appropriately. See the Deployment section of the documentation for more information.
+[2024-02-12 13:39:46 +0000] [1] [INFO] Handling signal: term
+[2024-02-12 13:39:58 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2024-02-12 13:39:58 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2024-02-12 13:39:58 +0000] [1] [INFO] Using worker: geventwebsocket.gunicorn.workers.GeventWebSocketWorker
+[2024-02-12 13:39:58 +0000] [7] [INFO] Booting worker with pid: 7
+[2024-02-12 13:43:30 +0000] [1] [INFO] Handling signal: term
+[2024-02-12 13:43:46 +0000] [1] [DEBUG] Current configuration:
+  config: ./gunicorn.conf.py
+  wsgi_app: None
+  bind: ['0.0.0.0:5000']
+  backlog: 2048
+  workers: 1
+  worker_class: geventwebsocket.gunicorn.workers.GeventWebSocketWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /app
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 0
+  group: 0
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: access.log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: api_log.log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  logconfig_json: None
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: api:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f6266a20b80>
+  on_reload: <function OnReload.on_reload at 0x7f6266a20ca0>
+  when_ready: <function WhenReady.when_ready at 0x7f6266a20dc0>
+  pre_fork: <function Prefork.pre_fork at 0x7f6266a20ee0>
+  post_fork: <function Postfork.post_fork at 0x7f6266a21000>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f6266a21120>
+  worker_int: <function WorkerInt.worker_int at 0x7f6266a21240>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f6266a21360>
+  pre_exec: <function PreExec.pre_exec at 0x7f6266a21480>
+  pre_request: <function PreRequest.pre_request at 0x7f6266a215a0>
+  post_request: <function PostRequest.post_request at 0x7f6266a21630>
+  child_exit: <function ChildExit.child_exit at 0x7f6266a21750>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f6266a21870>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f6266a21990>
+  on_exit: <function OnExit.on_exit at 0x7f6266a21ab0>
+  ssl_context: <function NewSSLContext.ssl_context at 0x7f6266a21bd0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2024-02-12 13:43:46 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2024-02-12 13:43:46 +0000] [1] [DEBUG] Arbiter booted
+[2024-02-12 13:43:46 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2024-02-12 13:43:46 +0000] [1] [INFO] Using worker: geventwebsocket.gunicorn.workers.GeventWebSocketWorker
+[2024-02-12 13:43:46 +0000] [7] [INFO] Booting worker with pid: 7
+[2024-02-12 13:43:46 +0000] [1] [DEBUG] 1 workers
+[2024-02-12 13:45:40 +0000] [1] [INFO] Handling signal: term

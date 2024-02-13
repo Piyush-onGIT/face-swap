@@ -7,3 +7,4 @@ gfpgan/
 aws-creds/
 .env
 db/
+node_modules/
