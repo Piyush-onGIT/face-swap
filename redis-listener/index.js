@@ -5,7 +5,6 @@ const Redis = require("ioredis");
 const httpServer = http.createServer();
 
 const redis = new Redis(6379, "redis");
-redis.set("mykey", "value");
 
 const io = new Server({
   cors: {
@@ -30,7 +29,7 @@ redis.subscribe("task_completed", (err, count) => {
 redis.on("message", (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
-  io.emit(socketChannel, socketMsg);
+  io.emit("taskId", socketMsg);
   console.log(`Received ${message} from ${channel}`);
 });
 
