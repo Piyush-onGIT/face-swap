@@ -28,3 +28,4 @@ python-dotenv
 pytz
 pymongo
 flask-cors
+aiohttp
