@@ -29,7 +29,7 @@ redis.subscribe("task_completed", (err, count) => {
 redis.on("message", (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
-  io.emit(taskId, socketMsg);
+  io.emit(socketChannel, socketMsg);
   console.log(`Received ${message} from ${channel}`);
 });
 
