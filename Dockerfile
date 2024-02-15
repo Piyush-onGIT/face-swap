@@ -11,6 +11,8 @@ COPY requirements.txt /app/
 COPY requirements-headless.txt /app/
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-headless.txt
+RUN pip install --upgrade --force-reinstall keras
+RUN pip install --upgrade tensorflow
 
 COPY . /app/
 
