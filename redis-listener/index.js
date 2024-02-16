@@ -41,6 +41,16 @@ redis.on("message", (channel, message) => {
 //   });
 // });
 
+httpServer.on("request", (req, res) => {
+  if (req.url === "/") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Hello\n");
+  } else {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("404 Not Found\n");
+  }
+});
+
 httpServer.listen(5001, () =>
   console.log(`HTTP Server started at PORT:${5001}`)
 );

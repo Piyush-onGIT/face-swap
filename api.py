@@ -51,8 +51,6 @@ def generate_unique_filename():
 
 
 # Endpoint to receive and process images
-
-
 @app.route('/process_image', methods=['POST'])
 def process_images_route():
   if 'source_image' not in request.files or 'target_image' not in request.files:
@@ -103,22 +101,33 @@ def get_task_time_left(task_id):
 @app.route('/send_whatsapp_message', methods=['POST'])
 def send_whatsapp_message():
   data = request.json
-  s3Url = data.get('url', None)
-  phone = data.get('phone', None)
-  s3Base64 = url_to_base64(s3Url)
+  taskId = data.get('taskId', None)
 
-  if (not s3Url) or (not phone) or (not s3Base64) or len(phone) != 10:
-    return jsonify({"message": "Invalid image"})
+  if not taskId:
+    return jsonify({"message": "Invalid taskId"})
 
-  phone = "91" + phone
-  api_url = 'http://localhost:3000/api/sendImage'
-  data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": s3Base64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
-
-  loop = asyncio.new_event_loop()
-  asyncio.set_event_loop(loop)
-  result = loop.run_until_complete(call_third_party_api(api_url, data))
+  while process_images.AsyncResult(task_id).state != 'SUCCESS':
+    print(process_images.AsyncResult(task_id))
+    break
 
   return jsonify({"message": "Done"})
+  # data = request.json
+  # s3Url = data.get('url', None)
+  # phone = data.get('phone', None)
+  # s3Base64 = url_to_base64(s3Url)
+
+  # if (not s3Url) or (not phone) or (not s3Base64) or len(phone) != 10:
+  #   return jsonify({"message": "Invalid image"})
+
+  # phone = "91" + phone
+  # api_url = 'http://localhost:3000/api/sendImage'
+  # data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": s3Base64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
+
+  # loop = asyncio.new_event_loop()
+  # asyncio.set_event_loop(loop)
+  # result = loop.run_until_complete(call_third_party_api(api_url, data))
+
+  # return jsonify({"message": "Done"})
 
 
 @app.route('/', methods=['GET'])
