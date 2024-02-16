@@ -19,7 +19,8 @@ app = Flask(__name__)
 allowed_origins = [
     'http://localhost:3000',
     'http://127.0.0.1:5500',
-    'https://roop.gokapturehub.com'
+    'https://roop.gokapturehub.com',
+    'http://localhost:5173'
 ]
 CORS(app, origins=allowed_origins)
 
