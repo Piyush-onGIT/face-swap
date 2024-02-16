@@ -1,8 +1,10 @@
 const http = require("http");
+const express = require("express");
+const app = express();
+const server = http.createServer(app);
+
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
-
-const httpServer = http.createServer();
 
 const redis = new Redis(6379, "redis");
 
@@ -14,7 +16,7 @@ const io = new Server({
   },
 });
 
-io.attach(httpServer);
+io.attach(server);
 
 redis.subscribe("task_completed", (err, count) => {
   if (err) {
@@ -33,24 +35,15 @@ redis.on("message", (channel, message) => {
   console.log(`Received ${message} from ${channel}`);
 });
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-//   // io.emit("taskId", "hi");
-//   socket.on("disconnect", () => {
-//     console.log("user disconnected");
-//   });
-// });
-
-httpServer.on("request", (req, res) => {
-  if (req.url === "/") {
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Hello\n");
-  } else {
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("404 Not Found\n");
-  }
+io.on("connect", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
 });
 
-httpServer.listen(5001, () =>
-  console.log(`HTTP Server started at PORT:${5001}`)
-);
+app.get("/", (req, res) => {
+  res.send("<h1>Hello world</h1>");
+});
+
+server.listen(5001, () => console.log(`HTTP Server started at PORT:${5001}`));

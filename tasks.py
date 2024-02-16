@@ -34,6 +34,7 @@ def process_images(source_image_path, target_image_path, output_image_path, outp
   core.run(source_image_path, target_image_path, output_image_path)
   url = upload_image_to_s3(output_image_path, task_id)
   redis_client.publish('task_completed', f"{task_id}:{url}")
+  
   print("URL for the image: ", url)
   return url
 

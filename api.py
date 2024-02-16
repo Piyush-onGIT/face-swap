@@ -102,32 +102,30 @@ def get_task_time_left(task_id):
 def send_whatsapp_message():
   data = request.json
   taskId = data.get('taskId', None)
+  phone = data.get('phone', None)
 
   if not taskId:
     return jsonify({"message": "Invalid taskId"})
+  
+  if not phone:
+    return jsonify({"message": "Invalid phone number"})
 
-  while process_images.AsyncResult(task_id).state != 'SUCCESS':
-    print(process_images.AsyncResult(task_id))
-    break
+  phone = "91" + phone
 
-  return jsonify({"message": "Done"})
-  # data = request.json
-  # s3Url = data.get('url', None)
-  # phone = data.get('phone', None)
-  # s3Base64 = url_to_base64(s3Url)
+  while process_images.AsyncResult(taskId).state == 'PENDING':
+    pass
 
-  # if (not s3Url) or (not phone) or (not s3Base64) or len(phone) != 10:
-  #   return jsonify({"message": "Invalid image"})
+  imageUrl = process_images.AsyncResult(taskId).result
+  resultBase64 = url_to_base64(imageUrl)
+  
+  api_url = 'http://whatsapp_api:3000/api/sendImage'
+  data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": resultBase64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
 
-  # phone = "91" + phone
-  # api_url = 'http://localhost:3000/api/sendImage'
-  # data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": s3Base64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
+  loop = asyncio.new_event_loop()
+  asyncio.set_event_loop(loop)
+  result = loop.run_until_complete(call_third_party_api(api_url, data))
 
-  # loop = asyncio.new_event_loop()
-  # asyncio.set_event_loop(loop)
-  # result = loop.run_until_complete(call_third_party_api(api_url, data))
-
-  # return jsonify({"message": "Done"})
+  return jsonify({"message": 'Sent'})
 
 
 @app.route('/', methods=['GET'])
@@ -142,11 +140,14 @@ def getImages():
 
 
 def url_to_base64(image_url):
-  response = requests.get(image_url)
-  if response.status_code == 200:
-    image_base64 = base64.b64encode(response.content).decode('utf-8')
-    return image_base64
-  else:
+  try:
+    response = requests.get(image_url)
+    if response.status_code == 200:
+      image_base64 = base64.b64encode(response.content).decode('utf-8')
+      return image_base64
+    else:
+      return None
+  except Exception as e:
     return None
 
 
@@ -157,4 +158,5 @@ async def call_third_party_api(url, data):
 
 
 if __name__ == "__main__":
-  app.run(app, debug=True)
+  # app.run(app, debug=True)
+  app.run(host='0.0.0.0', port=5000, debug=True)
