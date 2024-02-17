@@ -32,6 +32,7 @@ redis.on("message", (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
+  // io.emit("gallery", socketMsg);
   console.log(`Received ${message} from ${channel}`);
 });
 

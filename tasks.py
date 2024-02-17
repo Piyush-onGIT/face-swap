@@ -68,7 +68,7 @@ def upload_image_to_s3(file_path, task_id):
           'base': file_base64,
           # path frame.png as base64
           'overlay': overlay_base64, 
-          'uploadFor':'aibooth-12thfeb'
+          'uploadFor':'aibooth-17thfeb'
       }
       response = requests.post("https://s39nhbwtx9.execute-api.ap-south-1.amazonaws.com/template", json=payload)
       print(response)

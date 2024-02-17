@@ -43,13 +43,13 @@ services:
       - "27017:27017"
     volumes:
       - ./db:/data/db
-#    networks:
-#      - my_network
+    networks:
+     - my_network
 
   redis_listener:
     build: ./redis-listener
-    # volumes:
-    #   - ./redis-listener:/app
+    volumes:
+      - ./redis-listener:/app
     depends_on:
       - redis
     ports:

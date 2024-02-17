@@ -22,7 +22,8 @@ allowed_origins = [
     'https://roop.gokapturehub.com',
     'http://localhost:5173'
 ]
-CORS(app, origins=allowed_origins)
+# CORS(app, origins=allowed_origins)
+CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
