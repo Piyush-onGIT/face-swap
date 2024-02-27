@@ -59,6 +59,11 @@ def process_images_route():
 
   source_image = request.files['source_image']
   target_image = request.files['target_image']
+  event_id = request.form.get('event_id', None)
+  frame_url = request.form.get('frame', None)
+
+  if not event_id:
+    return jsonify({"message": "Event not found"}), 400
 
   # Save the uploaded images
   source_filename = generate_unique_filename() + '.' + source_image.filename.rsplit('.', 1)[1].lower()
@@ -73,7 +78,7 @@ def process_images_route():
   target_image.save(target_image_path)
 
   # Queue the task to process the images
-  result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename)
+  result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename, event_id, frame_url)
   return jsonify({"task_id": result.id}), 202
 
 
@@ -120,7 +125,9 @@ def send_whatsapp_message():
   resultBase64 = url_to_base64(imageUrl)
   
   api_url = 'http://whatsapp_api:3000/api/sendImage'
-  data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": resultBase64}, "caption": "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks", "session": "default"}
+  caption = "GeM crossed the ₹3 Lakh Crore\nmilestone today! As a member of\nthe GeM family, I am honoured to\nbe a\npart of this incredible journey\ntowards transforming procurement\nin India.\nI am proud to be a part of\n#TeamGeM\n#GeMIndia #3LakhCroreGMV\n#GeM_Unstoppable\n#TeamGeMRocks"
+
+  data = {'chatId': f'{phone}@c.us', 'file': {"mimetype": "image/jpeg", "filename": "aiimage.jpg", "data": resultBase64}, "caption": '', "session": "default"}
 
   loop = asyncio.new_event_loop()
   asyncio.set_event_loop(loop)

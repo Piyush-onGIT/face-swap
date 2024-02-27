@@ -1,6 +1,8 @@
 version: '3'
 
 networks:
+  dev-docker_gokapnet:
+    external: true
   my_network:
     driver: bridge
 
@@ -8,19 +10,19 @@ services:
   flask_app:
     build: .
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - .:/app
     command: gunicorn -b 0.0.0.0:5000 api:app
     environment:
       - PYTHONUNBUFFERED=TRUE
     networks:
-      - my_network
+      - dev-docker_gokapnet
 
   redis:
     image: redis:latest
     networks:
-      - my_network
+      - dev-docker_gokapnet
 
   celery_worker:
     build: .
@@ -33,18 +35,18 @@ services:
       - CELERY_BROKER=redis://redis:6379/0
     command: python -m celery -A tasks worker --loglevel=info
     networks:
-      - my_network
+      - dev-docker_gokapnet
 
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./db:/data/db
-    networks:
-     - my_network
+  # mongodb:
+  #   image: mongo
+  #   container_name: mongodb
+  #   restart: always
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./db:/data/db
+  #   networks:
+  #    - my_network
 
   redis_listener:
     build: ./redis-listener
@@ -53,16 +55,16 @@ services:
     depends_on:
       - redis
     ports:
-      - "5001:5001"
+      - "5002:5001"
     command: npm start
     networks:
-      - my_network
+      - dev-docker_gokapnet
 
   whatsapp_api:
     image: public.ecr.aws/t1n3q9p8/gokapturehub-misc
     container_name: whatsapp_api
     restart: always
     ports:
-      - "3000:3000"
+      - "4000:3000"
     networks:
-      - my_network
+      - dev-docker_gokapnet
