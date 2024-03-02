@@ -25,7 +25,8 @@ services:
       - dev-docker_gokapnet
 
   celery_worker:
-    build: .
+    image: face-swap-flask_app
+    # build: .
     depends_on:
       - redis
     volumes:

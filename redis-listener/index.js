@@ -6,7 +6,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
-const redis = new Redis(6379, "10.0.151.70");
+const redis = new Redis(6379, "redis");
 
 const io = new Server({
   cors: {
