@@ -27,13 +27,13 @@ services:
   celery_worker:
     image: face-swap-flask_app
     # build: .
-    depends_on:
-      - redis
+    # depends_on:
+    #   - redis
     volumes:
       - .:/app
     environment:
       - C_FORCE_ROOT=true
-      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BROKER=redis://10.0.151.70:6379/0
     command: python -m celery -A tasks worker --loglevel=info
     networks:
       - dev-docker_gokapnet
