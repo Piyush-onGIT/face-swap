@@ -10,18 +10,22 @@ import requests
 from datetime import datetime
 from bson import ObjectId
 
-host = 'mongodb'
-port = 27017
+load_dotenv()
+
+host = os.environ.get('MONGODB_URL')
+port = int(os.environ.get('MONGODB_PORT'))
 
 client = MongoClient(host, port)
 db = client['gokapturehub']
 collection = db['photobooths']
 
-load_dotenv()
+redis_host = os.environ.get('REDIS_HOST')
+redis_port = int(os.environ.get('REDIS_PORT'))
+
 
 # Create Celery instance
-celery = Celery(__name__, broker='redis://redis:6379/0', backend='redis://redis:6379/0')
-redis_client = redis.Redis(host='redis', port=6379, db=0)
+celery = Celery(__name__, broker=f'redis://{redis_host}:{redis_port}/0', backend=f'redis://{redis_host}:{redis_port}/0')
+redis_client = redis.Redis(host=redis_host, port=redis_port, db=0)
 
 # Create an S3 client
 s3 = boto3.client('s3', aws_access_key_id=os.environ.get('AWS_ACCESS_KEY'), aws_secret_access_key=os.environ.get('AWS_SECRET_KEY'), region_name='ap-south-1')

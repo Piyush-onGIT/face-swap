@@ -6,6 +6,8 @@ __pycache__
 gfpgan/
 aws-creds/
 .env
+.env.prod
+.env.local
 db/
 node_modules/
 uploads/
