@@ -96,7 +96,7 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
 def saveToMongo(url, collection, task_id, event_id):
   timestamp = datetime.now()
   result = collection.update_one(
-    {"_id": event_id},
+    {"_id": ObjectId(event_id)},
     {"$push": {"data": {"imageLink": url, "timestamp": timestamp}}}
   )
   # collection.insert_one({"_id": task_id ,'image': url})
