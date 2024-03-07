@@ -16,8 +16,8 @@ host = os.environ.get('MONGODB_URL')
 port = int(os.environ.get('MONGODB_PORT'))
 
 client = MongoClient(host, port)
-db = client['gokapturehub']
-collection = db['photobooths']
+db = client[os.environ.get('MONGO_DB_NAME')]
+collection = db['aiphotobooths']
 
 redis_host = os.environ.get('REDIS_HOST')
 redis_port = int(os.environ.get('REDIS_PORT'))
