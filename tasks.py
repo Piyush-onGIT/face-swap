@@ -53,6 +53,13 @@ def process_images(source_image_path, target_image_path, output_image_path, outp
   url = upload_image_to_s3(output_image_path, task_id, event_id, frame_url)
   redis_client.publish('task_completed', f"{event_id}:{url}")
   redis_client.publish('task_completed', f"{task_id}:{url}")
+
+  if os.path.exists(source_image_path):
+    os.remove(source_image_path)
+  if os.path.exists(target_image_path):
+    os.remove(target_image_path)
+  if os.path.exists(output_image_path):
+    os.remove(output_image_path)
   
   print("URL for the image: ", url)
   return url
