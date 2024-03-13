@@ -75,12 +75,13 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
     overlay_base64 = ''
     if frame_url:
       overlay_base64 = url_to_base64(frame_url)
-      print('frame', 'overlay_base64')
+      # print('frame', 'overlay_base64')  
     else:
-      with open('frame.png', 'rb') as data:
-        overlay_data = data.read()
-        overlay_base64 = base64.b64encode(overlay_data).decode('utf-8')
-        print('frameless', 'overlay_base64')
+      overlay_base64 = None
+      # with open('frame.png', 'rb') as data:
+      #   overlay_data = data.read()
+      #   overlay_base64 = base64.b64encode(overlay_data).decode('utf-8')
+      #   print('frameless', 'overlay_base64')
 
     with open(file_path, 'rb') as data:
       file_data = data.read()
