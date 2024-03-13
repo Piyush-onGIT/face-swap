@@ -27,8 +27,8 @@ services:
   celery_worker:
     # image: face-swap-flask_app
     build: .
-    depends_on:
-      - redis
+    # depends_on:
+    #   - redis
     volumes:
       - .:/app
     environment:
