@@ -8,6 +8,7 @@ const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
 const redis = new Redis(6379, "redis");
+const redisNonSubscriber = new Redis(6379, "redis");
 
 const io = new Server({
   cors: {
@@ -34,7 +35,7 @@ redis.on("message", async (channel, message) => {
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
   // io.emit("gallery", socketMsg);
-  const phone = await redis.get(`${socketChannel}:whatsapp`);
+  const phone = await redisNonSubscriber.get(`${socketChannel}:whatsapp`);
   console.log(phone);
 
   if (phone) {
