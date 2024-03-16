@@ -77,7 +77,8 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
       overlay_base64 = url_to_base64(frame_url)
       # print('frame', 'overlay_base64')  
     else:
-      overlay_base64 = None
+      overlay_base64 = 'None'
+    print(overlay_base64)
       # with open('frame.png', 'rb') as data:
       #   overlay_data = data.read()
       #   overlay_base64 = base64.b64encode(overlay_data).decode('utf-8')
@@ -94,6 +95,7 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
       }
       response = requests.post("https://s39nhbwtx9.execute-api.ap-south-1.amazonaws.com/template", json=payload)
       print(response)
+#      print(response.json())
       url = response.json().get('image')
       saveToMongo(url, collection, task_id, event_id)
       return url
