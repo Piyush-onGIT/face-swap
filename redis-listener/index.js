@@ -41,8 +41,8 @@ redis.on("message", async (channel, message) => {
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
 
-  console.log(`Finding key ${socketChannel}:whatsapp`);
-  const phone = await redisClient.get(`${socketChannel}:whatsapp`);
+  console.log(`Finding key ${socketChannel}_whatsapp`);
+  const phone = await redisClient.get(`${socketChannel}_whatsapp`);
   console.log(phone);
 
   console.log(`${phone}:phone`);
