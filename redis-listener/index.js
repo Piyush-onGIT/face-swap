@@ -11,8 +11,10 @@ const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
 const redis = new Redis(6379, "redis");
-await redisClient.connect();
-const redisNonSubscriber = new Redis(6379, "redis");
+
+const connectRedis = async () => {
+  await redisClient.connect();
+};
 
 const io = new Server({
   cors: {
@@ -62,6 +64,7 @@ io.on("connect", (socket) => {
   });
 });
 
+connectRedis();
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
