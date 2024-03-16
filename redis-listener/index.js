@@ -28,11 +28,22 @@ redis.subscribe("task_completed", (err, count) => {
   }
 });
 
-redis.on("message", (channel, message) => {
+redis.on("message", async (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
   // io.emit("gallery", socketMsg);
+  const phone = await redis.get(`${socketChannel}:whatsapp`);
+  if (phone) {
+    await fetch("http://whatsapp:3000/sendText", {
+      method: "POST",
+      body: JSON.stringify({
+        chatId: `91${phone}@c.us`,
+        text: socketMsg,
+        session: "default",
+      }),
+    });
+  }
   console.log(`Received ${message} from ${channel}`);
 });
 
