@@ -38,10 +38,12 @@ redis.on("message", async (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
-  // io.emit("gallery", socketMsg);
+
+  console.log(`Finding key ${socketChannel}:whatsapp`);
   const phone = await redisClient.get(`${socketChannel}:whatsapp`);
   console.log(phone);
 
+  console.log(`${phone}:phone`);
   if (phone) {
     await axios.post("http://whatsapp:8003/sendText", {
       chatId: `91${phone}@c.us`,
