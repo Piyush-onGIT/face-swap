@@ -2,7 +2,7 @@ const http = require("http");
 const express = require("express");
 const app = express();
 const server = http.createServer(app);
-import axios from "axios";
+const axios = require("axios");
 
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
@@ -38,12 +38,13 @@ redis.on("message", async (channel, message) => {
   console.log(phone);
 
   if (phone) {
-    await axios.post("http://whatsapp:3000/sendText", {
+    await axios.post("http://whatsapp:8003/sendText", {
       chatId: `91${phone}@c.us`,
       text: socketMsg,
       session: "default",
     });
   }
+
   console.log(`Received ${message} from ${channel} and sent it`);
 });
 
