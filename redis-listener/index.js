@@ -3,11 +3,15 @@ const express = require("express");
 const app = express();
 const server = http.createServer(app);
 const axios = require("axios");
+const { createClient } = require("redis");
+
+const redisClient = createClient({ url: "redis://redis:6379" });
 
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
 const redis = new Redis(6379, "redis");
+await redisClient.connect();
 const redisNonSubscriber = new Redis(6379, "redis");
 
 const io = new Server({
@@ -35,7 +39,7 @@ redis.on("message", async (channel, message) => {
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
   // io.emit("gallery", socketMsg);
-  const phone = await redisNonSubscriber.get(`${socketChannel}:whatsapp`);
+  const phone = await redisClient.get(`${socketChannel}:whatsapp`);
   console.log(phone);
 
   if (phone) {
