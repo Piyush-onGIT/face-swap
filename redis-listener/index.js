@@ -35,9 +35,15 @@ redis.on("message", async (channel, message) => {
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
   // io.emit("gallery", socketMsg);
-  const phone = await redisNonSubscriber.get(`${socketChannel}:whatsapp`);
-  console.log(phone);
-
+  //const phone = await redisNonSubscriber.get(`${socketChannel}:whatsapp`);
+  
+  console.log(`Finding key ${socketChannel}:whatsapp`)
+  const phone = await redisNonSubscriber
+    .get(`${socketChannel}:whatsapp`)
+    .catch((err) => {
+      console.error("Error getting phone from Redis:", err);
+    });
+  console.log(`${phone}:phone`);
   if (phone) {
     await axios.post("http://whatsapp:8003/sendText", {
       chatId: `91${phone}@c.us`,
