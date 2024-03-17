@@ -1,9 +1,11 @@
+
 const http = require("http");
 const express = require("express");
 const app = express();
 const server = http.createServer(app);
 const axios = require("axios");
 const { createClient } = require("redis");
+const { Blob } = require("buffer");
 
 const redisClient = createClient({ url: "redis://redis:6379" });
 
@@ -41,17 +43,25 @@ redis.on("message", async (channel, message) => {
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
 
-  console.log(`Finding key ${socketChannel}_whatsapp`);
-  const phone = await redisClient.get(`${socketChannel}_whatsapp`);
-  console.log(phone);
+  const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+  const base64Image = Buffer.from(response.data, "binary").toString("base64");
+  // const imageBlob = new Blob([response.data]);
+  // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
 
-  console.log(`${phone}:phone`);
-  if (phone) {
-    await axios.post("http://whatsapp:3000/api/sendText", {
-      chatId: `91${phone}@c.us`,
-      text: socketMsg,
-      session: "default",
-    });
+  try {
+    console.log(`Finding key ${socketChannel}_whatsapp`);
+    const phone = await redisClient.get(`${socketChannel}_whatsapp`);
+    console.log(phone);
+
+    console.log(`${phone}:phone`);
+    if (phone) {
+      await axios.post("http://api-prod:8000/sendImage", {
+        phone: phone,
+        image: base64Image,
+      });
+    }
+  } catch (error) {
+    console.log("Error while sending image on whatsapp");
   }
 
   console.log(`Received ${message} from ${channel} and sent it`);
