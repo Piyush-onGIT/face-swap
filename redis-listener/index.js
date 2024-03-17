@@ -1,4 +1,3 @@
-
 const http = require("http");
 const express = require("express");
 const app = express();
@@ -39,25 +38,31 @@ redis.subscribe("task_completed", (err, count) => {
 });
 
 async function processMessage(channel, imageUrl) {
-  try {
-    const response = await axios.get(imageUrl, {
-      responseType: "arraybuffer",
-    });
-    const base64Image = Buffer.from(response.data, "binary").toString("base64");
-    console.log(`Finding key ${channel}_whatsapp`);
-    const phone = await redisClient.get(`${channel}_whatsapp`);
-    console.log(phone);
-
-    console.log(`${phone}:phone`);
-    if (phone) {
-      await axios.post("http://api-prod:8000/sendImage", {
-        phone: phone,
-        image: base64Image,
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
       });
+      const base64Image = Buffer.from(response.data, "binary").toString(
+        "base64"
+      );
+      console.log(`Finding key ${channel}_whatsapp`);
+      const phone = await redisClient.get(`${channel}_whatsapp`);
+      console.log(phone);
+
+      console.log(`${phone}:phone`);
+      if (phone) {
+        await axios.post("http://api-prod:8000/sendImage", {
+          phone: phone,
+          image: base64Image,
+        });
+      }
+      resolve();
+    } catch (error) {
+      console.log("Error while sending image on whatsapp");
+      reject(error);
     }
-  } catch (error) {
-    console.log("Error while sending image on whatsapp");
-  }
+  });
 }
 
 redis.on("message", async (channel, message) => {
@@ -68,7 +73,13 @@ redis.on("message", async (channel, message) => {
   // const imageBlob = new Blob([response.data]);
   // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
 
-  await processMessage(socketChannel, socketMsg);
+  processMessage(socketChannel, socketMsg)
+    .then(() => {
+      console.log(`Async processing started for message from ${channel}`);
+    })
+    .catch((error) => {
+      console.error(`Error processing message from ${channel}:`, error);
+    });
 
   console.log(`Received ${message} from ${channel} and sent it`);
 });
