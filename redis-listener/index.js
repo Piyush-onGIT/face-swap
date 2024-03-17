@@ -113,7 +113,9 @@ io.on("connect", (socket) => {
   });
 });
 
-connectRedis();
+connectRedis()
+  .then(() => console.log("Redis client connected"))
+  .catch((err) => console.log(`Error connecting redis client ${err}`));
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
