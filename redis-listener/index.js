@@ -96,7 +96,8 @@ async function sendEmail(channel, imageUrl) {
     try {
       console.log(`Finding key ${channel}_email`);
       const email = await redisClient.get(`${channel}_email`);
-      console.log(email);
+
+      if (!email) resolve();
 
       const response = await axios.get(imageUrl, {
         responseType: "arraybuffer",
