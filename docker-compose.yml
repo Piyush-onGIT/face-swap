@@ -19,11 +19,6 @@ services:
     networks:
       - dev-docker_gokapnet
 
-  redis:
-    image: redis:latest
-    networks:
-      - dev-docker_gokapnet
-
   celery_worker:
     # image: face-swap-flask_app
     build: .
@@ -54,8 +49,6 @@ services:
     volumes:
       - ./redis-listener:/app
       - /app/node_modules
-    depends_on:
-      - redis
     ports:
       - "5002:5001"
     command: npm start
