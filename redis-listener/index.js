@@ -7,7 +7,7 @@ const { createClient } = require("redis");
 const { Blob } = require("buffer");
 const Jimp = require("jimp");
 
-const redisClient = createClient({ url: "redis://redis:6379" });
+const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
 
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
@@ -42,7 +42,7 @@ const compressBase64 = async (base64) => {
   const bufferImageData = Buffer.from(base64, "base64");
   const image = await Jimp.read(bufferImageData);
   const compressedImageData = await image
-    .quality(60)
+    .quality(80)
     .getBufferAsync(Jimp.MIME_JPEG);
   const compressedBase64ImageData = compressedImageData.toString("base64");
 
@@ -100,7 +100,7 @@ redis.on("message", async (channel, message) => {
       console.log(`Async processing started for message from ${channel}`);
     })
     .catch((error) => {
-      console.error(`Error processing message from ${channel}:`, error.message);
+      console.error(`Error sending iamge from ${channel}:`, error.message);
     });
 
   console.log(`Received ${message} from ${channel} and sent it`);
