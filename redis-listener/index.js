@@ -42,7 +42,7 @@ const compressBase64 = async (base64) => {
   const bufferImageData = Buffer.from(base64, "base64");
   const image = await Jimp.read(bufferImageData);
   const compressedImageData = await image
-    .quality(50)
+    .quality(30)
     .getBufferAsync(Jimp.MIME_JPEG);
   const compressedBase64ImageData = compressedImageData.toString("base64");
 
@@ -66,16 +66,18 @@ async function processMessage(channel, imageUrl) {
         "base64"
       );
       const base64Compressed = await compressBase64(base64Image);
-
+      // console.log(base64Compressed);
       console.log(`Finding key ${channel}_whatsapp`);
       const phone = await redisClient.get(`${channel}_whatsapp`);
       console.log(phone);
 
       console.log(`${phone}:phone`);
       if (phone) {
-        await axios.post("http://api-prod:8000/sendImage", {
+        await axios.post("https://api.gokapturehub.com/whatsapp/sendImage", {
           phone: phone,
           image: base64Compressed,
+          caption:
+            "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you. Can't wait for you to see it!",
         });
       }
       resolve();
