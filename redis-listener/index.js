@@ -59,30 +59,72 @@ const compressBase64 = async (base64) => {
 async function processMessage(channel, imageUrl) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.get(imageUrl, {
-        responseType: "arraybuffer",
-      });
-      const base64Image = Buffer.from(response.data, "binary").toString(
-        "base64"
-      );
-      const base64Compressed = await compressBase64(base64Image);
-      // console.log(base64Compressed);
+      // const response = await axios.get(imageUrl, {
+      //   responseType: "arraybuffer",
+      // });
+      // const base64Image = Buffer.from(response.data, "binary").toString(
+      //   "base64"
+      // );
+      // const base64Compressed = await compressBase64(base64Image);
       console.log(`Finding key ${channel}_whatsapp`);
       const phone = await redisClient.get(`${channel}_whatsapp`);
       console.log(phone);
-
-      console.log(`${phone}:phone`);
       if (phone) {
-        await axios.post("https://api.gokapturehub.com/whatsapp/sendImage", {
+        const messageToSend =
+          "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you: https://aibooth-result.vercel.app/${channel}. Can't wait for you to see it!";
+        await axios.post("https://api.gokapturehub.com/whatsapp/sendText", {
           phone: phone,
-          image: base64Compressed,
-          caption:
-            "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you. Can't wait for you to see it!",
+          message: messageToSend,
         });
+        // await axios.post("https://api.gokapturehub.com/whatsapp/sendImage", {
+        //   phone: phone,
+        //   image: base64Compressed,
+        //   caption:
+        //     "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you. Can't wait for you to see it!",
+        // });
       }
       resolve();
     } catch (error) {
       console.log("Error while sending image on whatsapp");
+      reject(error);
+    }
+  });
+}
+
+async function sendEmail(channel, imageUrl) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(`Finding key ${channel}_email`);
+      const email = await redisClient.get(`${channel}_email`);
+      console.log(email);
+
+      const response = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
+      });
+
+      const urlParts = imageUrl.split("/");
+      const imageName = urlParts[urlParts.length - 1];
+
+      const imageBlob = new Blob([response.data]);
+      const imageFile = new File([imageBlob], imageName, {
+        type: "image/jpeg",
+      });
+
+      const formData = new FormData();
+      formData.append("to", email);
+      formData.append("files", imageFile);
+      formData.append("subject", "Gokapture generated image");
+      formData.append(
+        "body",
+        "Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation."
+      );
+
+      await axios.post(
+        "https://api.gokapturehub.com/email/sendEmailWithAttachements",
+        formData
+      );
+      resolve();
+    } catch (error) {
       reject(error);
     }
   });
@@ -97,7 +139,15 @@ redis.on("message", async (channel, message) => {
   // const imageBlob = new Blob([response.data]);
   // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
 
-  processMessage(socketChannel, socketMsg)
+  // processMessage(socketChannel, socketMsg)
+  //   .then(() => {
+  //     console.log(`Async processing started for message from ${channel}`);
+  //   })
+  //   .catch((error) => {
+  //     console.error(`Error sending iamge from ${channel}:`, error.message);
+  //   });
+
+  sendEmail(socketChannel, socketMsg)
     .then(() => {
       console.log(`Async processing started for message from ${channel}`);
     })
