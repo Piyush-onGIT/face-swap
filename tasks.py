@@ -78,7 +78,6 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
       # print('frame', 'overlay_base64')  
     else:
       overlay_base64 = 'None'
-    print(overlay_base64)
       # with open('frame.png', 'rb') as data:
       #   overlay_data = data.read()
       #   overlay_base64 = base64.b64encode(overlay_data).decode('utf-8')
@@ -105,10 +104,8 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
 
 def saveToMongo(url, collection, task_id, event_id):
   timestamp = datetime.now()
-  print(collection)
   result = collection.update_one(
     {"_id": ObjectId(event_id)},
     {"$push": {"data": {"imageLink": url, "timestamp": timestamp}}}
   )
-  print(result)
   # collection.insert_one({"_id": task_id ,'image': url})
