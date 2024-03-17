@@ -47,7 +47,7 @@ redis.on("message", async (channel, message) => {
 
   console.log(`${phone}:phone`);
   if (phone) {
-    await axios.post("http://whatsapp:8003/sendText", {
+    await axios.post("http://whatsapp:3000/api/sendText", {
       chatId: `91${phone}@c.us`,
       text: socketMsg,
       session: "default",
