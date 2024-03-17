@@ -42,7 +42,7 @@ const compressBase64 = async (base64) => {
   const bufferImageData = Buffer.from(base64, "base64");
   const image = await Jimp.read(bufferImageData);
   const compressedImageData = await image
-    .quality(quality)
+    .quality(60)
     .getBufferAsync(Jimp.MIME_JPEG);
   const compressedBase64ImageData = compressedImageData.toString("base64");
 
