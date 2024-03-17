@@ -7,7 +7,7 @@ const { createClient } = require("redis");
 const { Blob } = require("buffer");
 const Jimp = require("jimp");
 
-const redisClient = createClient({ url: "redis://redis:6379" });
+const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
 
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
@@ -100,7 +100,7 @@ redis.on("message", async (channel, message) => {
       console.log(`Async processing started for message from ${channel}`);
     })
     .catch((error) => {
-      console.error(`Error processing message from ${channel}:`, error.message);
+      console.error(`Error sending iamge from ${channel}:`, error.message);
     });
 
   console.log(`Received ${message} from ${channel} and sent it`);
