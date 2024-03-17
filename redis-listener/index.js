@@ -37,19 +37,14 @@ redis.subscribe("task_completed", (err, count) => {
   }
 });
 
-redis.on("message", async (channel, message) => {
-  socketChannel = message.split(":")[0];
-  socketMsg = message.split(":").slice(1).join(":");
-  io.emit(socketChannel, socketMsg);
-
-  const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
-  const base64Image = Buffer.from(response.data, "binary").toString("base64");
-  // const imageBlob = new Blob([response.data]);
-  // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
-
+async function processMessage(channel, imageUrl) {
   try {
-    console.log(`Finding key ${socketChannel}_whatsapp`);
-    const phone = await redisClient.get(`${socketChannel}_whatsapp`);
+    const response = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+    });
+    const base64Image = Buffer.from(response.data, "binary").toString("base64");
+    console.log(`Finding key ${channel}_whatsapp`);
+    const phone = await redisClient.get(`${channel}_whatsapp`);
     console.log(phone);
 
     console.log(`${phone}:phone`);
@@ -62,6 +57,17 @@ redis.on("message", async (channel, message) => {
   } catch (error) {
     console.log("Error while sending image on whatsapp");
   }
+}
+
+redis.on("message", async (channel, message) => {
+  socketChannel = message.split(":")[0];
+  socketMsg = message.split(":").slice(1).join(":");
+  io.emit(socketChannel, socketMsg);
+
+  // const imageBlob = new Blob([response.data]);
+  // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
+
+  await processMessage(socketChannel, socketMsg);
 
   console.log(`Received ${message} from ${channel} and sent it`);
 });
