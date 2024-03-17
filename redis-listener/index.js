@@ -90,6 +90,7 @@ redis.on("message", async (channel, message) => {
   socketChannel = message.split(":")[0];
   socketMsg = message.split(":").slice(1).join(":");
   io.emit(socketChannel, socketMsg);
+  console.log(`Emitted ${socketMsg}`);
 
   // const imageBlob = new Blob([response.data]);
   // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
