@@ -97,7 +97,7 @@ async function sendEmail(channel, imageUrl) {
       console.log(`Finding key ${channel}_email`);
       const email = await redisClient.get(`${channel}_email`);
 
-      if (!email) resolve();
+      if (!email) resolve("No email found");
 
       const response = await axios.get(imageUrl, {
         responseType: "arraybuffer",
@@ -124,7 +124,7 @@ async function sendEmail(channel, imageUrl) {
         "https://api.gokapturehub.com/email/sendEmailWithAttachements",
         formData
       );
-      resolve();
+      resolve(`Email sent to ${email}`);
     } catch (error) {
       reject(error);
     }
@@ -149,8 +149,9 @@ redis.on("message", async (channel, message) => {
   //   });
 
   sendEmail(socketChannel, socketMsg)
-    .then(() => {
-      console.log(`Async processing started for message from ${channel}`);
+    .then((data) => {
+      console.log(data);
+      console.log(`Async processing completed for message from ${channel}`);
     })
     .catch((error) => {
       console.error(`Error sending iamge from ${channel}:`, error.message);
