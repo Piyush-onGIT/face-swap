@@ -100,7 +100,7 @@ async function sendEmail(channel, imageUrl) {
       const email = await redisClient.get(`${channel}_email`);
       const eventId = await redisClient.get(`${channel}_email_data`);
 
-      if (!email) resolve("No email found");
+      if (!email) return resolve("No email found");
 
       console.log(`Mailing to: ${email}`);
 
@@ -116,37 +116,36 @@ async function sendEmail(channel, imageUrl) {
         type: "image/jpeg",
       });
 
+      const eventName = (
+        await collection.findOne({
+          _id: new ObjectId(eventId),
+        })
+      ).name;
+
+      console.log(eventName);
+
+      const mailBody = `Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation at ${
+        eventName ?? "our event"
+      }. Please find your image attached with this email`;
+
       const formData = new FormData();
       formData.append("to", email);
       formData.append("files", imageFile);
-      formData.append("subject", "Gokapture generated image");
+      formData.append(
+        "subject",
+        `GoKapture: ${eventName ?? "Generated image"}`
+      );
       formData.append(
         "body",
         "Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation."
       );
+      formData.append("body", mailBody);
+      formData.append("imageUrl", imageUrl);
+      formData.append("eventId", eventId);
 
       await axios.post(
         "https://api.gokapturehub.com/email/sendEmailWithAttachements",
         formData
-      );
-
-      if (!eventId) {
-        resolve(`Event not found for id: ${channel}_email_data`);
-      }
-      console.log(`Event id: ${eventId} found for key: ${channel}_email_data`);
-      await collection.updateOne(
-        { _id: new ObjectId(eventId) },
-        {
-          $push: {
-            data: {
-              mailTo: email,
-              imageSent: imageUrl,
-              mailBody:
-                "Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation.",
-              timestamp: new Date(),
-            },
-          },
-        }
       );
       resolve(`Email sent to ${email}`);
     } catch (error) {
