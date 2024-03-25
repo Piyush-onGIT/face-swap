@@ -6,11 +6,13 @@ const axios = require("axios");
 const { createClient } = require("redis");
 const { Blob } = require("buffer");
 const Jimp = require("jimp");
-
-const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
-
+const { MongoClient, ObjectId } = require("mongodb");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
+
+const client = new MongoClient("mongodb://10.0.133.48:27017/gkhdb");
+const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
+const collection = client.collection("aiphotobooths");
 
 const redis = new Redis(6379, "redis");
 
@@ -94,8 +96,8 @@ async function processMessage(channel, imageUrl) {
 async function sendEmail(channel, imageUrl) {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(`Finding key ${channel}_email`);
       const email = await redisClient.get(`${channel}_email`);
+      const eventId = await redisClient.get(`${channel}_email_data`);
 
       if (!email) resolve("No email found");
 
@@ -123,6 +125,24 @@ async function sendEmail(channel, imageUrl) {
       await axios.post(
         "https://api.gokapturehub.com/email/sendEmailWithAttachements",
         formData
+      );
+
+      if (!eventId) {
+        resolve("Event not found");
+      }
+      await collection.updateOne(
+        { _id: ObjectId(eventId) },
+        {
+          $push: {
+            data: {
+              mailTo: email,
+              imageSent: imageUrl,
+              mailBody:
+                "Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation.",
+              timestamp: new Date(),
+            },
+          },
+        }
       );
       resolve(`Email sent to ${email}`);
     } catch (error) {
