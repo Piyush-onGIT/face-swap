@@ -102,6 +102,8 @@ async function sendEmail(channel, imageUrl) {
 
       if (!email) resolve("No email found");
 
+      console.log(`Mailing to: ${email}`);
+
       const response = await axios.get(imageUrl, {
         responseType: "arraybuffer",
       });
@@ -129,10 +131,11 @@ async function sendEmail(channel, imageUrl) {
       );
 
       if (!eventId) {
-        resolve("Event not found");
+        resolve(`Event not found for id: ${channel}_email_data`);
       }
+      console.log(`Event id: ${eventId} found for key: ${channel}_email_data`);
       await collection.updateOne(
-        { _id: ObjectId(eventId) },
+        { _id: new ObjectId(eventId) },
         {
           $push: {
             data: {
@@ -147,7 +150,6 @@ async function sendEmail(channel, imageUrl) {
       );
       resolve(`Email sent to ${email}`);
     } catch (error) {
-      console.log(error);
       reject(error);
     }
   });
