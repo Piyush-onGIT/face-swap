@@ -135,10 +135,6 @@ async function sendEmail(channel, imageUrl) {
         "subject",
         `GoKapture: ${eventName ?? "Generated image"}`
       );
-      formData.append(
-        "body",
-        "Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation."
-      );
       formData.append("body", mailBody);
       formData.append("imageUrl", imageUrl);
       formData.append("eventId", eventId);
