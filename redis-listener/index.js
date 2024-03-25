@@ -10,9 +10,10 @@ const { MongoClient, ObjectId } = require("mongodb");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
-const client = new MongoClient("mongodb://10.0.133.48:27017/gkhdb");
+const mongoClient = new MongoClient("mongodb://10.0.133.48:27017");
+const mongoDb = mongoClient.db("gkhdb");
+const collection = mongoDb.collection("aiphotobooths");
 const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
-const collection = client.collection("aiphotobooths");
 
 const redis = new Redis(6379, "redis");
 
