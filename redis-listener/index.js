@@ -10,12 +10,20 @@ const { MongoClient, ObjectId } = require("mongodb");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
 
-const mongoClient = new MongoClient("mongodb://10.0.133.48:27017");
-const mongoDb = mongoClient.db("gkhdb");
-const collection = mongoDb.collection("aiphotobooths");
-const redisClient = createClient({ url: "redis://redis:6379", database: 0 });
+const redisHost = process.env.REDIS_HOST;
+const redisPort = process.env.REDIS_PORT;
+const mongoUri = process.env.MONGODB_URI;
+const mongoName = process.env.MONGODB_NAME;
 
-const redis = new Redis(6379, "redis");
+const mongoClient = new MongoClient(mongoUri);
+const mongoDb = mongoClient.db(mongoName);
+const collection = mongoDb.collection("aiphotobooths");
+const redisClient = createClient({
+  url: `redis://${redisHost}:${redisPort}`,
+  database: 0,
+});
+
+const redis = new Redis(redisPort, redisHost);
 
 const connectRedis = async () => {
   await redisClient.connect();
@@ -121,8 +129,6 @@ async function sendEmail(channel, imageUrl) {
           _id: new ObjectId(eventId),
         })
       ).name;
-
-      console.log(eventName);
 
       const mailBody = `Here's your fantastic AI-generated photo from our photobooth! Enjoy the memories captured in this unique creation at ${
         eventName ?? "our event"
