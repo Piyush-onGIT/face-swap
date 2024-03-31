@@ -6,6 +6,9 @@ networks:
   my_network:
     driver: bridge
 
+platforms:
+  - linux/amd64
+
 services:
   flask_app:
     build: .
@@ -61,8 +64,5 @@ services:
     restart: always
     ports:
       - "5003:3000"
-    platforms:
-      - linux/amd64
     networks:
       - dev-docker_gokapnet
-      
