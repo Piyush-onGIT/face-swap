@@ -6,8 +6,8 @@ networks:
   my_network:
     driver: bridge
 
-platforms:
-  - linux/amd64
+# platforms:
+#   - linux/amd64
 
 services:
   flask_app:
@@ -62,6 +62,7 @@ services:
   whatsapp_api:
     image: public.ecr.aws/t1n3q9p8/gokapturehub-misc
     container_name: whatsapp_api
+    platform: linux/amd64
     restart: always
     ports:
       - "5003:3000"
