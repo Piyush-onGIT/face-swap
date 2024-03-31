@@ -9,11 +9,13 @@ const Jimp = require("jimp");
 const { MongoClient, ObjectId } = require("mongodb");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
+require('dotenv').config();
 
 const redisHost = process.env.REDIS_HOST;
 const redisPort = process.env.REDIS_PORT;
 const mongoUri = process.env.MONGODB_URI;
 const mongoName = process.env.MONGODB_NAME;
+
 
 const mongoClient = new MongoClient(mongoUri);
 const mongoDb = mongoClient.db(mongoName);

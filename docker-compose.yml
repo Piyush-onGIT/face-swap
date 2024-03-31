@@ -28,7 +28,7 @@ services:
       - .:/app
     environment:
       - C_FORCE_ROOT=true
-      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BROKER=redis://redis.gokapturehub.com:6379/0
     command: python -m celery -A tasks worker --loglevel=info
     networks:
       - dev-docker_gokapnet
