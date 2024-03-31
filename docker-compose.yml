@@ -61,6 +61,6 @@ services:
     container_name: whatsapp_api
     restart: always
     ports:
-      - "4000:3000"
+      - "5003:3000"
     networks:
       - dev-docker_gokapnet

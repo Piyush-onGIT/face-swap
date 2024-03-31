@@ -83,8 +83,7 @@ async function processMessage(channel, imageUrl) {
       const phone = await redisClient.get(`${channel}_whatsapp`);
       console.log(phone);
       if (phone) {
-        const messageToSend =
-          "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you: https://aibooth-result.vercel.app/${channel}. Can't wait for you to see it!";
+        const messageToSend = `Exciting news! Your AI-generated image is ready to be shared. Here's the image for you: https://aibooth-result.vercel.app/${channel}. Can't wait for you to see it!`;
         await axios.post("https://api.gokapturehub.com/whatsapp/sendText", {
           phone: phone,
           message: messageToSend,
