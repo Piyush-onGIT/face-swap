@@ -96,6 +96,7 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
       print(response)
 #      print(response.json())
       url = response.json().get('image')
+      print(url)
       saveToMongo(url, collection, task_id, event_id)
       return url
   except Exception as e:

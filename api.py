@@ -79,6 +79,7 @@ def process_images_route():
 
   # Queue the task to process the images
   result = process_images.delay(source_image_path, target_image_path, output_image_path, output_filename, event_id, frame_url)
+  print(result)
   return jsonify({"task_id": result.id}), 202
 
 

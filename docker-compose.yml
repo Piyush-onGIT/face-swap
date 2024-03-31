@@ -9,6 +9,7 @@ networks:
 services:
   flask_app:
     build: .
+#    image: 291621997224.dkr.ecr.ap-south-1.amazonaws.com/face-swap
     ports:
       - "5001:5000"
     volumes:
@@ -20,7 +21,7 @@ services:
       - dev-docker_gokapnet
 
   celery_worker:
-    # image: face-swap-flask_app
+#    image: 291621997224.dkr.ecr.ap-south-1.amazonaws.com/face-swap
     build: .
     # depends_on:
     #   - redis
