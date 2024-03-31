@@ -62,5 +62,8 @@ services:
     restart: always
     ports:
       - "5003:3000"
+    platforms:
+      - linux/amd64
     networks:
       - dev-docker_gokapnet
+      
