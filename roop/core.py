@@ -1,5 +1,20 @@
 #!/usr/bin/env python3
 
+from roop.utilities import has_image_extension, is_image, is_video, detect_fps, create_video, extract_frames, get_temp_frame_paths, restore_audio, create_temp, move_temp, clean_temp, normalize_output_path
+from roop.processors.frame.core import get_frame_processors_modules
+from roop.predictor import predict_image, predict_video
+import roop.ui as ui
+import roop.metadata
+import roop.globals
+import tensorflow
+import onnxruntime
+from argparse import Namespace
+import argparse
+import shutil
+import signal
+import platform
+from typing import List
+import warnings
 import os
 import sys
 # single thread doubles cuda performance - needs to be set before torch import
@@ -7,21 +22,6 @@ if any(arg.startswith('--execution-provider') for arg in sys.argv):
     os.environ['OMP_NUM_THREADS'] = '1'
 # reduce tensorflow log level
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-import warnings
-from typing import List
-import platform
-import signal
-import shutil
-import argparse
-from argparse import Namespace
-import onnxruntime
-import tensorflow
-import roop.globals
-import roop.metadata
-import roop.ui as ui
-from roop.predictor import predict_image, predict_video
-from roop.processors.frame.core import get_frame_processors_modules
-from roop.utilities import has_image_extension, is_image, is_video, detect_fps, create_video, extract_frames, get_temp_frame_paths, restore_audio, create_temp, move_temp, clean_temp, normalize_output_path
 
 warnings.filterwarnings('ignore', category=FutureWarning, module='insightface')
 warnings.filterwarnings('ignore', category=UserWarning, module='torchvision')
@@ -54,7 +54,7 @@ def parse_args(source_image_path, target_image_path, output_image_path) -> None:
 
     # print(args)
 
-    args = Namespace(source_path=source_image_path, target_path=target_image_path, output_path=output_image_path, frame_processor=['face_swapper', 'face_enhancer'], keep_fps=False, keep_frames=False, skip_audio=False, many_faces=False, reference_face_position=0, reference_frame_number=0, similar_face_distance=0.85, temp_frame_format='png', temp_frame_quality=0, output_video_encoder='libx264', output_video_quality=35, max_memory=None, execution_provider=['cpu'], execution_threads=1)
+    args = Namespace(source_path=source_image_path, target_path=target_image_path, output_path=output_image_path, frame_processor=['face_swapper'], keep_fps=False, keep_frames=False, skip_audio=False, many_faces=False, reference_face_position=0, reference_frame_number=0, similar_face_distance=0.85, temp_frame_format='png', temp_frame_quality=0, output_video_encoder='libx264', output_video_quality=35, max_memory=None, execution_provider=['cpu'], execution_threads=1)
 
     roop.globals.source_path = args.source_path
     roop.globals.target_path = args.target_path
