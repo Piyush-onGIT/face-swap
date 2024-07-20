@@ -1,19 +1,16 @@
-FROM python:3.10
+FROM python:3.10-slim
+
+RUN apt-get update && apt-get install -y     python3-tk     ffmpeg     libsm6     libxext6     libhdf5-dev     gcc     g++     make     libffi-dev     libssl-dev     python3-dev     pkg-config &&     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN apt-get update
-RUN apt-get install python3-tk -y
-RUN apt-get install ffmpeg libsm6 libxext6 -y
-
-# Install Python dependencies
 COPY requirements.txt /app/
-COPY requirements-headless.txt /app/
-RUN pip install -r requirements.txt
-RUN pip install -r requirements-headless.txt
-#RUN pip install --upgrade --force-reinstall keras
-#RUN pip install --upgrade tensorflow
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
 EXPOSE 5000
+
+CMD [python, app.py]
+

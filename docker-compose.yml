@@ -14,7 +14,7 @@ services:
     build: .
 #    image: 291621997224.dkr.ecr.ap-south-1.amazonaws.com/face-swap
     ports:
-      - "5001:5000"
+      - "8001:5000"
     volumes:
       - .:/app
     command: gunicorn -b 0.0.0.0:5000 api:app
@@ -24,12 +24,14 @@ services:
       - dev-docker_gokapnet
 
   celery_worker:
-#    image: 291621997224.dkr.ecr.ap-south-1.amazonaws.com/face-swap
+ #   image: 291621997224.dkr.ecr.ap-south-1.amazonaws.com/face-swap
     build: .
     # depends_on:
     #   - redis
     volumes:
       - .:/app
+    ports:
+      - "8003:5000"
     environment:
       - C_FORCE_ROOT=true
       - CELERY_BROKER=redis://redis.gokapturehub.com:6379/0
@@ -54,16 +56,7 @@ services:
       - ./redis-listener:/app
       - /app/node_modules
     ports:
-      - "5002:5001"
+      - "8002:5001"
     command: npm start
-    networks:
-      - dev-docker_gokapnet
-
-  whatsapp_api:
-    image: public.ecr.aws/t1n3q9p8/gokapturehub-misc
-    container_name: whatsapp_api
-    restart: always
-    ports:
-      - "5003:3000"
     networks:
       - dev-docker_gokapnet

@@ -13,6 +13,7 @@ import base64
 import aiohttp
 import asyncio
 import redis
+from bson import ObjectId
 
 app = Flask(__name__)
 
@@ -33,11 +34,17 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 host = 'mongodb'
 port = 27017
 
+host = os.environ.get('MONGODB_URL')
+port = int(os.environ.get('MONGODB_PORT'))
+
+#client = MongoClient(host, port)
+#db = client['ai-photobooth']
+#collection = db['face-swaps']
+
 client = MongoClient(host, port)
-db = client['ai-photobooth']
-collection = db['face-swaps']
-
-
+db = client[os.environ.get('MONGO_DB_NAME')]
+collection = db['aiphotobooths']
+print(collection)
 # Check if the uploaded file has a valid extension
 
 
@@ -61,6 +68,12 @@ def process_images_route():
   target_image = request.files['target_image']
   event_id = request.form.get('event_id', None)
   frame_url = request.form.get('frame', None)
+#  print(request.form)
+#  print(frame_url)
+#  print("DOCUMENT")
+  document = collection.find_one({"_id": ObjectId(event_id)})
+#  print(document.get('template'))
+  frame_url = document.get('template', None)
 
   if not event_id:
     return jsonify({"message": "Event not found"}), 400

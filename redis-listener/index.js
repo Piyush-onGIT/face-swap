@@ -9,6 +9,7 @@ const Jimp = require("jimp");
 const { MongoClient, ObjectId } = require("mongodb");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
+const { createAdapter } = require("@socket.io/redis-adapter");
 require('dotenv').config();
 
 const redisHost = process.env.REDIS_HOST;
@@ -16,13 +17,12 @@ const redisPort = process.env.REDIS_PORT;
 const mongoUri = process.env.MONGODB_URI;
 const mongoName = process.env.MONGODB_NAME;
 
-
 const mongoClient = new MongoClient(mongoUri);
 const mongoDb = mongoClient.db(mongoName);
 const collection = mongoDb.collection("aiphotobooths");
 const redisClient = createClient({
   url: `redis://${redisHost}:${redisPort}`,
-  database: 0,
+  database: 1,
 });
 
 const redis = new Redis(redisPort, redisHost);
@@ -38,6 +38,11 @@ const io = new Server({
     methods: ["*"],
   },
 });
+
+// Configure the Redis adapter
+const pubClient = new Redis(redisPort, redisHost);
+const subClient = pubClient.duplicate();
+io.adapter(createAdapter(pubClient, subClient)); // Use the adapter
 
 io.attach(server);
 
@@ -72,13 +77,6 @@ const compressBase64 = async (base64) => {
 async function processMessage(channel, imageUrl) {
   return new Promise(async (resolve, reject) => {
     try {
-      // const response = await axios.get(imageUrl, {
-      //   responseType: "arraybuffer",
-      // });
-      // const base64Image = Buffer.from(response.data, "binary").toString(
-      //   "base64"
-      // );
-      // const base64Compressed = await compressBase64(base64Image);
       console.log(`Finding key ${channel}_whatsapp`);
       const phone = await redisClient.get(`${channel}_whatsapp`);
       console.log(phone);
@@ -88,12 +86,6 @@ async function processMessage(channel, imageUrl) {
           phone: phone,
           message: messageToSend,
         });
-        // await axios.post("https://api.gokapturehub.com/whatsapp/sendImage", {
-        //   phone: phone,
-        //   image: base64Compressed,
-        //   caption:
-        //     "Exciting news! Your AI-generated image is ready to be shared. Here's the image for you. Can't wait for you to see it!",
-        // });
       }
       resolve();
     } catch (error) {
@@ -163,17 +155,6 @@ redis.on("message", async (channel, message) => {
   io.emit(socketChannel, socketMsg);
   console.log(`Emitted ${socketMsg}`);
 
-  // const imageBlob = new Blob([response.data]);
-  // const imageFile = new File([imageBlob], 'image.jpg', { type: 'image/jpeg' });
-
-  // processMessage(socketChannel, socketMsg)
-  //   .then(() => {
-  //     console.log(`Async processing started for message from ${channel}`);
-  //   })
-  //   .catch((error) => {
-  //     console.error(`Error sending iamge from ${channel}:`, error.message);
-  //   });
-
   sendEmail(socketChannel, socketMsg)
     .then((data) => {
       console.log(data);
@@ -188,6 +169,9 @@ redis.on("message", async (channel, message) => {
 
 io.on("connect", (socket) => {
   console.log("a user connected");
+  socket.on('send',(socketChannel, socketMsg)=>{
+    io.emit(socketChannel, socketMsg);
+  })
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
@@ -196,8 +180,9 @@ io.on("connect", (socket) => {
 connectRedis()
   .then(() => console.log("Redis client connected"))
   .catch((err) => console.log(`Error connecting redis client ${err}`));
+
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
-server.listen(5001, () => console.log(`HTTP Server started at PORT:${5001}`));
+server.listen(5001, () => console.log(`HTTP Server started at PORT:5001`));

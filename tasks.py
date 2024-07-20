@@ -46,6 +46,7 @@ def url_to_base64(image_url):
 # Define Celery task
 @celery.task
 def process_images(source_image_path, target_image_path, output_image_path, output_filename, event_id, frame_url):
+#  print(frame_url)
   task_id = process_images.request.id
   print("CELERY TASK RUNNING...")
   print(f"Task id received: {task_id}")
@@ -66,6 +67,8 @@ def process_images(source_image_path, target_image_path, output_image_path, outp
 
 
 def upload_image_to_s3(file_path, task_id, event_id, frame_url):
+ # print("frame")
+  #print(frame_url)
   try:
     # print(f'Uploading {file_path}')
     # s3.upload_file(file_path, bucket_name, object_name, ExtraArgs={'ACL': 'public-read'})
@@ -74,6 +77,8 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
     
     overlay_base64 = ''
     if frame_url:
+      print('frame url present')
+      print(frame_url)
       overlay_base64 = url_to_base64(frame_url)
       # print('frame', 'overlay_base64')  
     else:
@@ -94,7 +99,7 @@ def upload_image_to_s3(file_path, task_id, event_id, frame_url):
       }
       response = requests.post("https://s39nhbwtx9.execute-api.ap-south-1.amazonaws.com/template", json=payload)
       print(response)
-#      print(response.json())
+      print(response.json())
       url = response.json().get('image')
       print(url)
       saveToMongo(url, collection, task_id, event_id)
